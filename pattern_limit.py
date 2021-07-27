@@ -96,6 +96,9 @@ class PointUtils:
             if mirror:
                 tmp_shape_ls.append(PointUtils.mirror_shape(shape))
 
+            if mirror and rotate:
+                tmp_shape_ls.append([PointUtils.reverse_point(pt) for pt in PointUtils.mirror_shape(shape)])
+
             # Check that the shape hasn't been added to either
             # Must use count so that it ignores itself
             repeated = list()
@@ -170,10 +173,12 @@ def pass_function():
     pass  #it passes- kan
 
 
-def main(size=None):
+def main(size=None, print_out=True):
     """
     Generate a shape of the given number of points and returns how many unique combinations it has
-    :return:
+    :param size: the number of points
+    :param print_out: Bool. Whether to print the number or not
+    :return: The list of shapes
     """
     # Ask user for input in integers above zero. Natural numbers?
     if size is None:
@@ -191,7 +196,8 @@ def main(size=None):
 
     patterns = generate_pattern(size)
 
-    print("There are", len(patterns), "unique patterns")
+    if print_out:
+        print("There are", len(patterns), "unique patterns")
 
     return patterns
 
