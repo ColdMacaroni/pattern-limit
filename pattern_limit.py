@@ -72,7 +72,7 @@ def generate_pattern(points_left, current_shapes=None):
 
 def pass_function():
     """
-    Passes
+    Passes. Approved by kan
     """
     pass  #it passes- kan
 
