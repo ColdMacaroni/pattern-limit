@@ -125,6 +125,7 @@ class PointUtils:
             if mirror:
                 tmp_shape_ls += [PointUtils.mirror_shape(s) for s in tmp_shape_ls]
 
+            print(tmp_shape_ls)
             # Check that the shape hasn't been added to either
             # Must use count so that it ignores itself
             repeated = list()
@@ -162,6 +163,8 @@ def generate_pattern(points_left, current_shapes=None):
         for shape in current_shapes:
             last_pt = shape[-1]
 
+            # TODO: Right now its not considering shapes like the T in tetris. Make these check the 8 spots around it
+            #       and only return a point if there is a point connected to to that spot
             # These functions are used to calculate the next point.
             next_pt_functions = (PointUtils.left,
                                  PointUtils.right,
