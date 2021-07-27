@@ -58,6 +58,24 @@ class PointUtils:
         return xy[1], xy[0]
 
     @staticmethod
+    def surrounding_points(xy):
+        """
+        Returns the 8 points around the one given
+        :param xy: (x, y)
+        :return: list of (x, y)
+        """
+        # /shrug
+        x, y = xy
+        return [(x - 1, y + 1),
+                (x, y + 1),
+                (x + 1, y + 1),
+                (x - 1, y),
+                (x + 1, y),
+                (x - 1, y - 1),
+                (x, y - 1),
+                (x + 1, y - 1)]
+
+    @staticmethod
     def rotate_shape(shape):
         """
         Rotates a shape in 90°, 180°, and 270°.
