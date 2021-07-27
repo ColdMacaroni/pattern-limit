@@ -134,6 +134,10 @@ class PointUtils:
         # To store
         new_shapes = list()
 
+        # MUST sort so that differently positioned x,y coordinates do not affect this stuff
+        # do NOT sort the actual shape, they must be left intact so the algorithm doesnt break
+        sorted_shapes = [sorted(s_shape) for s_shape in shapes]
+
         for shape in shapes:
             # To store modified shapes that can then be compared
             tmp_shape_ls = [shape]
@@ -144,12 +148,14 @@ class PointUtils:
             if mirror:
                 tmp_shape_ls += [PointUtils.mirror_shape(s) for s in tmp_shape_ls]
 
-            print(tmp_shape_ls)
             # Check that the shape hasn't been added to either
             # Must use count so that it ignores itself
             repeated = list()
+
+            shape_exists = lambda to_check: sorted_shapes.count(sorted(to_check)) > 1\
+                or sorted(to_check) in [sorted(s_shape) for s_shape in new_shapes]
             for tmp_shape in tmp_shape_ls:
-                repeated.append(shapes.count(tmp_shape) > 1 or tmp_shape in new_shapes)
+                repeated.append(shape_exists(tmp_shape))
 
             if not any(repeated):
                 new_shapes.append(shape)
@@ -164,7 +170,6 @@ def generate_pattern(points_left, current_shapes=None):
     :param points_left: Number of points left to create
     :return: List of lists of (x, y) tuples
     """
-    print(points_left)
     # This to avoid default arg being mutable
     if current_shapes is None:
         current_shapes = list()
@@ -202,23 +207,22 @@ def generate_pattern(points_left, current_shapes=None):
                 connections = [connected_pt in shape
                                for connected_pt in [f(possible_pt) for f in connected_pt_functions]]
 
-                if any(connections):
+                if any(connections) and PointUtils.is_positive(possible_pt):
                     new_pts.append(possible_pt)
 
+            # To store the points which follow all rules
+            next_pts = list()
             for new_pt in new_pts:
                 # Check that the point doesnt already exist and that it is positive
                 # I think that only allowing positive ones will reduce the likelihood of rotated repeats
-                if new_pt not in shape and PointUtils.is_positive(new_pt):
-                    new_pts.append(new_pt)
+                if new_pt not in shape:
+                    next_pts.append(new_pt)
 
             # Extend the list of shapes with the new ones!
-            new_shapes += [[*shape, next_pt] for next_pt in new_pts]
-
-        # Remove duplicates
+            new_shapes += [[*shape, next_pt] for next_pt in next_pts]
 
         # In place list update from https://stackoverflow.com/a/51336327
-        # Update the current shapes
-
+        # Update the current shapes without repeats
         current_shapes[:] = PointUtils.remove_repeated_shapes(new_shapes)
 
         # We have placed one more point
@@ -262,4 +266,4 @@ def main(size=None, print_out=True):
 
 
 if __name__ == "__main__":
-    main()
+    print(main())
