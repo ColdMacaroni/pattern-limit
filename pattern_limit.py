@@ -1,6 +1,7 @@
 ##
 # pattern_limit.py
 
+
 class PointUtils:
     """
     Small little functions for working with points (i.e., xy coordinates)
@@ -58,6 +59,36 @@ class PointUtils:
         return xy[1], xy[0]
 
     @staticmethod
+    def make_shape_positive(shape):
+        """
+        Moves points to the first quadrant
+        """
+        # Separate x and y
+        all_x, all_y = zip(*shape)
+
+        # Get the offset
+        min_x = min(all_x)
+        min_y = min(all_y)
+
+        # Only change if the shape goes into the negatives
+        if min_x < 0:
+            new_x = [x + abs(min_x) for x in all_x]
+            
+        else:
+            new_x = all_x
+            
+
+        if min_y < 0:
+            new_y = [y + abs(min_y) for y in all_y]
+
+        else:
+            new_y = all_y
+
+        # Put them back together
+        return list(zip(new_x, new_y))
+        
+
+    @staticmethod
     def surrounding_points(xy):
         """
         Returns the 8 points around the one given
@@ -74,15 +105,6 @@ class PointUtils:
                 (x - 1, y - 1),
                 (x, y - 1),
                 (x + 1, y - 1)]
-
-    @staticmethod
-    def make_shape_positive(shape):
-        """
-        Move shape to the first quadrant
-        """
-        all_x, all_y = zip(*shape)
-
-
 
     @staticmethod
     def rotate_shape(shape):
@@ -140,13 +162,11 @@ class PointUtils:
         :param mirror: Also remove mirrored shapes
         :return: List of lists of (x, y)
         """
-        # TODO: FIX. REMOVES SHAPES THAT SHOULD NOT BE REMOVED
         # To store
         new_shapes = list()
 
         # MUST sort so that differently positioned x,y coordinates do not affect this stuff
         # do NOT sort the actual shape, they must be left intact so the algorithm doesnt break
-        sorted_shapes = [sorted(s_shape) for s_shape in shapes]
 
         for shape in shapes:
             # To store modified shapes that can then be compared
@@ -164,9 +184,9 @@ class PointUtils:
 
             shape_exists = lambda to_check: sorted(to_check) in [sorted(s_shape) for s_shape in new_shapes]
             for tmp_shape in tmp_shape_ls:
-                repeated.append(shape_exists(tmp_shape))
-
-            if not any(repeated):
+                if shape_exists(tmp_shape):
+                    break
+            else:
                 new_shapes.append(shape)
 
         return new_shapes
@@ -195,7 +215,11 @@ def generate_pattern(points_left, current_shapes=None):
     else:
         new_shapes = list()
         for shape in current_shapes:
+            print(shape)
             last_pt = shape[-1]
+
+            # TODO: Right now its not considering shapes like the T in tetris. Make these check the 8 spots around it
+            #       and only return a point if there is a point connected to to that spot
 
             # I'd use list comprehension but i want to avoid three function calls
             new_pts = list()
@@ -213,7 +237,7 @@ def generate_pattern(points_left, current_shapes=None):
                 connections = [connected_pt in shape
                                for connected_pt in [f(possible_pt) for f in connected_pt_functions]]
 
-                if any(connections) and PointUtils.is_positive(possible_pt):
+                if any(connections):
                     new_pts.append(possible_pt)
 
             # To store the points which follow all rules
@@ -227,9 +251,14 @@ def generate_pattern(points_left, current_shapes=None):
             # Extend the list of shapes with the new ones!
             new_shapes += [[*shape, next_pt] for next_pt in next_pts]
 
+        
+        # Shift all points to the first quadrant  
+        positive_shapes = [PointUtils.make_shape_positive(s) for s in new_shapes]    
+      
         # In place list update from https://stackoverflow.com/a/51336327
         # Update the current shapes without repeats
-        current_shapes[:] = PointUtils.remove_repeated_shapes(new_shapes)
+        # UPDATE: If removed some patterns wont generate
+        current_shapes[:] = positive_shapes # PointUtils.remove_repeated_shapes(positive_shapes)
 
         # We have placed one more point
         return generate_pattern(points_left - 1, current_shapes)
@@ -263,7 +292,7 @@ def main(size=None, print_out=True):
             except ValueError:
                 print("Please enter an int\n")
 
-    patterns = generate_pattern(size)
+    patterns = PointUtils.remove_repeated_shapes(generate_pattern(size))
 
     if print_out:
         print("There are", len(patterns), "unique patterns")
