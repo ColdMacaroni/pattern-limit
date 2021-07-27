@@ -73,17 +73,18 @@ class PointUtils:
 
         rotations = list()
 
+        # On these its important to subtract them from width or height to avoid negatives
         # Degrees counter-clockwise
         # 90 degrees
         # It actually works i figured it out myself. Make y negative and then reverse the points
-        rotations.append(list(map(lambda xy: PointUtils.reverse_point((xy[0], -xy[1])), shape)))
+        rotations.append(list(map(lambda xy: PointUtils.reverse_point((xy[0], height - xy[1])), shape)))
 
         # 180 degrees
         # https://www.mathwarehouse.com/transformations/rotations-in-math.php
         rotations.append(list(map(lambda xy: (width - xy[0], height - xy[1]), shape)))
 
         # 270
-        rotations.append(list(map(lambda xy: PointUtils.reverse_point((-xy[0], xy[1])), shape)))
+        rotations.append(list(map(lambda xy: PointUtils.reverse_point((width - xy[0], xy[1])), shape)))
 
         return rotations
 
