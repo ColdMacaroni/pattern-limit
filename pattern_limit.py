@@ -131,6 +131,7 @@ class PointUtils:
         :param mirror: Also remove mirrored shapes
         :return: List of lists of (x, y)
         """
+        # TODO: FIX. REMOVES SHAPES THAT SHOULD NOT BE REMOVED
         # To store
         new_shapes = list()
 
