@@ -41,6 +41,13 @@ class PointUtils:
         """
         return xy[0], xy[1] - 1
 
+    @staticmethod
+    def is_positive(xy):
+        """
+        Checks if the point is in the positive side of the xy axes (axii)
+        """
+        return xy[0] >= 0 and xy[1] >= 0
+
 
 def generate_pattern(points_left, current_shapes=None):
     """
@@ -63,11 +70,32 @@ def generate_pattern(points_left, current_shapes=None):
         return generate_pattern(points_left - 1, current_shapes)
 
     else:
+        new_shapes = list()
         for shape in current_shapes:
             last_pt = shape[-1]
 
+            # These functions are used to calculate the next point.
+            next_pt_functions = (PointUtils.left,
+                                 PointUtils.right,
+                                 PointUtils.up,
+                                 PointUtils.down)
 
+            # I'd use list comprehension but i want to avoid three function calls
+            new_pts = list()
+            for f in next_pt_functions:
+                new_pt = f(last_pt)
 
+                # Check that the point doesnt already exist and that it is positive
+                # I think that only allowing positive ones will reduce the likelihood of rotated repeats
+                if new_pt not in shape and PointUtils.is_positive(new_pt):
+                    new_pts.append(new_pt)
+
+            # Extend the list of shapes with the new ones!
+            new_shapes += [[*[shape], next_pt] for next_pt in new_pts]
+
+        # In place list update from https://stackoverflow.com/a/51336327
+        # Update the current shapes
+        current_shapes[:] = new_shapes
 
 
 def pass_function():
