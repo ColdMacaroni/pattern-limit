@@ -76,6 +76,15 @@ class PointUtils:
                 (x + 1, y - 1)]
 
     @staticmethod
+    def make_shape_positive(shape):
+        """
+        Move shape to the first quadrant
+        """
+        all_x, all_y = zip(*shape)
+
+
+
+    @staticmethod
     def rotate_shape(shape):
         """
         Rotates a shape in 90°, 180°, and 270°.
