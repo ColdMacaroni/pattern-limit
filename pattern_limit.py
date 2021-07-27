@@ -164,6 +164,7 @@ def generate_pattern(points_left, current_shapes=None):
     :param points_left: Number of points left to create
     :return: List of lists of (x, y) tuples
     """
+    print(points_left)
     # This to avoid default arg being mutable
     if current_shapes is None:
         current_shapes = list()
@@ -184,17 +185,27 @@ def generate_pattern(points_left, current_shapes=None):
 
             # TODO: Right now its not considering shapes like the T in tetris. Make these check the 8 spots around it
             #       and only return a point if there is a point connected to to that spot
-            # These functions are used to calculate the next point.
-            next_pt_functions = (PointUtils.left,
-                                 PointUtils.right,
-                                 PointUtils.up,
-                                 PointUtils.down)
 
             # I'd use list comprehension but i want to avoid three function calls
             new_pts = list()
-            for f in next_pt_functions:
-                new_pt = f(last_pt)
 
+            # The possible points MUST have a point connected (i.e. Not diagonal)
+            possible_next_pts = PointUtils.surrounding_points(last_pt)
+            connected_pt_functions = (PointUtils.left,
+                                      PointUtils.right,
+                                      PointUtils.up,
+                                      PointUtils.down)
+
+            # Check that all of the possible points (The 8 around the last pt) have one of the points in the main shape
+            # connected to them.
+            for possible_pt in possible_next_pts:
+                connections = [connected_pt in shape
+                               for connected_pt in [f(possible_pt) for f in connected_pt_functions]]
+
+                if any(connections):
+                    new_pts.append(possible_pt)
+
+            for new_pt in new_pts:
                 # Check that the point doesnt already exist and that it is positive
                 # I think that only allowing positive ones will reduce the likelihood of rotated repeats
                 if new_pt not in shape and PointUtils.is_positive(new_pt):
