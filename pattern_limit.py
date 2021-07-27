@@ -58,6 +58,36 @@ class PointUtils:
         return xy[1], xy[0]
 
     @staticmethod
+    def rotate_shape(shape):
+        """
+        Rotates a shape in 90°, 180°, and 270°.
+        :param shape: A list of (x, y)
+        :return: A list of lists of (x, y)
+        """
+        # zip trick from https://www.geeksforgeeks.org/python-unzip-a-list-of-tuples/
+        # Acquire width and height to reposition from negatives
+        all_x, all_y = zip(*shape)
+
+        width = max(all_x)
+        height = max(all_y)
+
+        rotations = list()
+
+        # Degrees counter-clockwise
+        # 90 degrees
+        # It actually works i figured it out myself. Make y negative and then reverse the points
+        rotations.append(list(map(lambda xy: PointUtils.reverse_point((xy[0], -xy[1])), shape)))
+
+        # 180 degrees
+        # https://www.mathwarehouse.com/transformations/rotations-in-math.php
+        rotations.append(list(map(lambda xy: (width - xy[0], height - xy[1]), shape)))
+
+        # 270
+        rotations.append(list(map(lambda xy: PointUtils.reverse_point((-xy[0], xy[1])), shape)))
+
+        return rotations
+
+    @staticmethod
     def mirror_shape(shape):
         """
         Mirror shape yay!
@@ -90,14 +120,10 @@ class PointUtils:
             tmp_shape_ls = [shape]
 
             if rotate:
-                # Rotate along the y=x line
-                tmp_shape_ls.append([PointUtils.reverse_point(pt) for pt in shape])
+                tmp_shape_ls += PointUtils.rotate_shape(shape)
 
             if mirror:
-                tmp_shape_ls.append(PointUtils.mirror_shape(shape))
-
-            if mirror and rotate:
-                tmp_shape_ls.append([PointUtils.reverse_point(pt) for pt in PointUtils.mirror_shape(shape)])
+                tmp_shape_ls += [PointUtils.mirror_shape(s) for s in tmp_shape_ls]
 
             # Check that the shape hasn't been added to either
             # Must use count so that it ignores itself
