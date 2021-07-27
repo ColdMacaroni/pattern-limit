@@ -48,6 +48,65 @@ class PointUtils:
         """
         return xy[0] >= 0 and xy[1] >= 0
 
+    @staticmethod
+    def reverse_point(xy):
+        """
+        Reverse the x and y coordinates of the point given
+        :param xy: (x, y)
+        :return: (y, x)
+        """
+        return xy[1], xy[0]
+
+    @staticmethod
+    def mirror_shape(shape):
+        """
+        Mirror shape yay!
+        :param shape: A list of (x, y)
+        :return: The points are mirrored along the x axis!
+        """
+        width = max([pt[0] for pt in shape])
+
+        # This should mirror the points along the x axis, moving em to 0,0
+        new_shape = [(width - x, y) for x, y in shape]
+        new_shape.reverse()
+
+        return new_shape
+
+    @staticmethod
+    def remove_repeated_shapes(shapes, rotate=True, mirror=True):
+        """
+        Remove all repeated shapes in the list
+        NO SUPPORT FOR SHAPES INCLUDING NEGATIVE COORDS
+        :param shapes: A list of lists of (x, y)
+        :param rotate: Also remove rotated rotated
+        :param mirror: Also remove mirrored shapes
+        :return: List of lists of (x, y)
+        """
+        # To store
+        new_shapes = list()
+
+        for shape in shapes:
+            # To store modified shapes that can then be compared
+            tmp_shape_ls = [shape]
+
+            if rotate:
+                # Rotate along the y=x line
+                tmp_shape_ls.append([PointUtils.reverse_point(pt) for pt in shape])
+
+            if mirror:
+                tmp_shape_ls.append(PointUtils.mirror_shape(shape))
+
+            # Check that the shape hasn't been added to either
+            # Must use count so that it ignores itself
+            repeated = list()
+            for tmp_shape in tmp_shape_ls:
+                repeated.append(shapes.count(tmp_shape) > 1 or tmp_shape in new_shapes)
+
+            if not any(repeated):
+                new_shapes.append(shape)
+
+        return new_shapes
+
 
 def generate_pattern(points_left, current_shapes=None):
     """
@@ -91,11 +150,17 @@ def generate_pattern(points_left, current_shapes=None):
                     new_pts.append(new_pt)
 
             # Extend the list of shapes with the new ones!
-            new_shapes += [[*[shape], next_pt] for next_pt in new_pts]
+            new_shapes += [[*shape, next_pt] for next_pt in new_pts]
+
+        # Remove duplicates
 
         # In place list update from https://stackoverflow.com/a/51336327
         # Update the current shapes
-        current_shapes[:] = new_shapes
+
+        current_shapes[:] = PointUtils.remove_repeated_shapes(new_shapes)
+
+        # We have placed one more point
+        return generate_pattern(points_left - 1, current_shapes)
 
 
 def pass_function():
@@ -105,8 +170,30 @@ def pass_function():
     pass  #it passes- kan
 
 
-def main():
-    ...
+def main(size=None):
+    """
+    Generate a shape of the given number of points and returns how many unique combinations it has
+    :return:
+    """
+    # Ask user for input in integers above zero. Natural numbers?
+    if size is None:
+        valid_input = False
+        while not valid_input:
+            try:
+                size = int(input("How many points should this shape have? ").strip())
+                if size < 0:
+                    print("Number must be positive\n")
+                else:
+                    valid_input = True
+
+            except ValueError:
+                print("Please enter an int\n")
+
+    patterns = generate_pattern(size)
+
+    print("There are", len(patterns), "unique patterns")
+
+    return patterns
 
 
 if __name__ == "__main__":
