@@ -7,14 +7,23 @@ def generate_patterns(size):
     """
     patterns = list()
 
-    shape = [(x, 0) for x range(size)]
+    shape = [(x, 0) for x in range(size)]
 
-    while shape not in patterns:
-        patterns.append(shape)
+    for _ in range(pow(size, 2)):
+        if shape not in patterns:
+            patterns.append(shape)
 
+    return patterns
+
+
+def pass():
+    """
+    Passes
+    """
+    pass  #it passes- kan
 
 def main():
-    pass  #it passes- kan
+    ...
 
 if __name__ == "__main__":
     main()
