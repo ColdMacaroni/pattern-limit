@@ -153,8 +153,7 @@ class PointUtils:
             # Must use count so that it ignores itself
             repeated = list()
 
-            shape_exists = lambda to_check: sorted_shapes.count(sorted(to_check)) > 1\
-                or sorted(to_check) in [sorted(s_shape) for s_shape in new_shapes]
+            shape_exists = lambda to_check: sorted(to_check) in [sorted(s_shape) for s_shape in new_shapes]
             for tmp_shape in tmp_shape_ls:
                 repeated.append(shape_exists(tmp_shape))
 
@@ -188,9 +187,6 @@ def generate_pattern(points_left, current_shapes=None):
         new_shapes = list()
         for shape in current_shapes:
             last_pt = shape[-1]
-
-            # TODO: Right now its not considering shapes like the T in tetris. Make these check the 8 spots around it
-            #       and only return a point if there is a point connected to to that spot
 
             # I'd use list comprehension but i want to avoid three function calls
             new_pts = list()
